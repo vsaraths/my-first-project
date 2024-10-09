@@ -1,0 +1,39 @@
+class Category:
+    def __init__(self, name):
+        self.name = name
+        self.ledger = []
+
+    def __str__(self):
+        # Title line
+        title = f"{self.name:*^30}\n"
+        # List all items in the ledger
+        items = ""
+        for item in self.ledger:
+            desc = f"{item['description'][:23]:23}"  # Limit description to 23 characters
+            amount = f"{item['amount']:>7.2f}"       # Format amount to 2 decimal places and right align
+            items += f"{desc}{amount}\n"
+        # Total balance
+        total = f"Total: {self.get_balance():.2f}"
+        return title + items + total
+
+    def deposit(self, amount, description=""):
+        self.ledger.append({"amount": amount, "description": description})
+
+    def withdraw(self, amount, description=""):
+        if self.check_funds(amount):
+            self.ledger.append({"amount": -amount, "description": description})
+            return True
+        return False
+
+    def get_balance(self):
+        return sum(item['amount'] for item in self.ledger)
+
+    def transfer(self, amount, category):
+        if self.check_funds(amount):
+            self.withdraw(amount, f"Transfer to {category.name}")
+            category.deposit(amount, f"Transfer from {self.name}")
+            return True
+        return False
+
+    def check_funds(self, amount):
+        return amount <= self.get_balance()
